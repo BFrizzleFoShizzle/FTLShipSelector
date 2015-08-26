@@ -97,6 +97,28 @@ void shipRotBackward() {
 	selectedShipBase = &(selectedShip->base);
 }
 
+void rotForwardPlayerShip() {
+	//prefix for player ships
+	char prefix[] = "PLAYER_";
+	shipRotForward();
+	//if it's not a player ship, start again from the beginning!
+	//loop until player again
+	while(strncmp(selectedShip->shipID2,prefix,7)!=0) {
+		shipRotForward();
+	}
+}
+
+void rotBackwardPlayerShip() {
+	//prefix for player ships
+	char prefix[] = "PLAYER_";
+	shipRotBackward();
+	//if it's not a player ship, start again from the beginning!
+	//loop until player again
+	while(strncmp(selectedShip->shipID2,prefix,7)!=0) {
+		shipRotBackward();
+	}
+}
+
 //Don't inline or it'll mess up the hook's stack frame!
 __declspec(noinline) void dealWithClick(void) {
 	int x, y;
@@ -121,11 +143,11 @@ __declspec(noinline) void dealWithClick(void) {
 	if(*((bool*)0x0028EECC)) {
 		//button 1
 		if(x>25 && x<95 && y>175 && y<210) {
-			shipRotBackward();
+			rotBackwardPlayerShip();
 		}
 		//button 2
 		if(x>95 && x<165 && y>175 && y<210) {
-			shipRotForward();
+			rotForwardPlayerShip();
 		}
 	}
 	char out[50];
