@@ -251,6 +251,8 @@ void hookOpenGLFinish(void) {
 DWORD WINAPI FTLM_Main (LPVOID lpParam)
 {
 	FTLProcess = GetCurrentProcess();
+	//generate texture for font
+	glGenTextures(1, &texFont);
 	// Hook openGL finish
 	glFinishPointer = (DWORD)GetProcAddress(GetModuleHandle("OPENGL32.dll"), "glFinish");
 	RETHook6Byte((0x0025DBB8+0x00400000),hookOpenGLFinish,FTLProcess);
@@ -327,7 +329,6 @@ DWORD WINAPI FTLM_Main (LPVOID lpParam)
 void drawString(float x, float y, char* text){
 	// set up for text drawing
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glGenTextures(1, &texFont);
 	glBindTexture(GL_TEXTURE_2D, texFont);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
