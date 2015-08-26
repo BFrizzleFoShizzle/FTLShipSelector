@@ -16,6 +16,8 @@ ShipDescriptor* selectedShip = NULL;
 ShipDescriptor* firstShip = NULL;
 int* selectedShipBase = NULL;
 
+HWND ftlWindow = NULL;
+
 char output[500];
 
 //select next ship
@@ -116,7 +118,7 @@ void shipRotBackward() {
 	selectedShipBase = &(selectedShip->base);
 }
 
-
+//Don't inline or it'll mess up the hook's stack frame!
 __declspec(noinline) void dealWithClick(void) {
 	int x, y;
 	__asm
@@ -128,6 +130,13 @@ __declspec(noinline) void dealWithClick(void) {
 		mov eax, [ebp+0x18];
 		mov y, eax;
 		pop eax
+	}
+	if(ftlWindow==NULL){
+		ftlWindow = GetActiveWindow();
+		sprintf(output,"FTLWindow %x",ftlWindow);
+		MessageBox(NULL, output, "test", MB_OK + MB_ICONINFORMATION);
+		GetWindowText(ftlWindow,output,50);
+		MessageBox(NULL, output, "test", MB_OK + MB_ICONINFORMATION);
 	}
 	//check if in hangar
 	if(*((bool*)0x0028EECC)) {
@@ -180,15 +189,6 @@ void hookClick(void){
 }
 
 void drawStuff(void) {
-	// set up for text drawing
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glGenTextures(1, &texFont);
-	glBindTexture(GL_TEXTURE_2D, texFont);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 128, 128, 0, GL_RGBA, GL_UNSIGNED_BYTE, texFontData);
 	/*__asm{
 		int 3;
 	}*/
@@ -207,14 +207,27 @@ void drawStuff(void) {
 	//if in hangar, draw custom UI stuff
 	if(*((bool*)0x0028EECC)) {
 		//(5, 110) (185, 110) (185, 340) (5, 340)
-		//glColor3f(0.5,0.5,0.5);
-		//drawRect(5,110,180,231);
-		glEnable(GL_BLEND);
-		glColor4f(0,0,0,0.8);
+		glColor3f(0.5,0.5,0.5);
+		drawRect(5,110,180,231);
+		glColor3f(0.3,0.3,0.3);
 		drawRect(25,175,140,35);
-		glDisable(GL_BLEND);
+		glColor4f(1,1,1,1);
 		drawString(30,190,"Previous");
 		drawString(115,190,"Next");
+		//draw a cursor if we're covering it...
+		if(ftlWindow!=NULL) {
+			//3x3 square at cursor so the user knows where it is...
+			glColor4f(1,1,1,1);
+			POINT p;
+			GetCursorPos(&p);
+			ScreenToClient(ftlWindow,&p);
+			sprintf(output,"Mousepos %i %i",p.x, p.y);
+			drawString(200,190,output);
+			if(p.x>5&&p.x<185&&p.y>110&&p.y<340){
+				//draw cursor
+				drawTriangle(p.x,p.y,p.x+10,p.y+10,p.x,p.y+14);
+			}
+		}
 	}
 };
 
@@ -312,12 +325,31 @@ DWORD WINAPI FTLM_Main (LPVOID lpParam)
 };
 
 void drawString(float x, float y, char* text){
+	// set up for text drawing
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glGenTextures(1, &texFont);
+	glBindTexture(GL_TEXTURE_2D, texFont);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 128, 128, 0, GL_RGBA, GL_UNSIGNED_BYTE, texFontData);
 	while(*text != 0) {
 		drawChar(x, y, *text);
 		x+=charW;
 		text++;
 	}
 };
+
+void drawTriangle (float x1,float y1,float x2,float y2,float x3,float y3) {
+	glEnable(GL_COLOR_MATERIAL);
+	glBegin(GL_TRIANGLES);
+	 glVertex3f(x1, y1, 0.0);
+	 glVertex3f(x2, y2, 0.0);
+	 glVertex3f(x3, y3, 0.0);
+	glEnd();
+	glDisable(GL_COLOR_MATERIAL);
+}
 
 void drawRect (float x,float y,float w,float h) {
 	glEnable(GL_COLOR_MATERIAL);
