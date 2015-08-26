@@ -20,6 +20,12 @@ HWND ftlWindow = NULL;
 
 char output[500];
 
+//random function for DLL export so I can
+//add the DLL to FTL's import table
+__declspec(dllexport) void ayyLmao() {
+
+}
+
 //select next ship
 void shipRotForward() {
 	char* lastShipID = selectedShip->shipID2;
@@ -193,25 +199,28 @@ void drawStuff(void) {
 	/*__asm{
 		int 3;
 	}*/
-	ShipDescriptor* currShip = firstShip;
-	float y = 60.0f;
-	sprintf_s(output,"0 %x", selectedShipBase);
-	drawString(200.0f,y,output);
-	y+=20.0f;
-	if(selectedShip!=NULL)
-		sprintf_s(output,"1 %x %s", selectedShip, selectedShip->shipID2);
-	drawString(200.0f,y,output);
-	y+=20.0f;
-	if(firstShip!=NULL)
-		sprintf_s(output,"2 %x %s", firstShip, firstShip->shipClass);
-	drawString(200.0f,y,output);
+	if(DEBUG) {
+		ShipDescriptor* currShip = firstShip;
+		float y = 60.0f;
+		sprintf_s(output,"0 %x", selectedShipBase);
+		drawString(200.0f,y,output);
+		y+=20.0f;
+		if(selectedShip!=NULL)
+			sprintf_s(output,"1 %x %s", selectedShip, selectedShip->shipID2);
+		drawString(200.0f,y,output);
+		y+=20.0f;
+		if(firstShip!=NULL)
+			sprintf_s(output,"2 %x %s", firstShip, firstShip->shipClass);
+		drawString(200.0f,y,output);
+	}
 	//if in hangar, draw custom UI stuff
 	if(*((bool*)0x0028EECC)) {
 		//(5, 110) (185, 110) (185, 340) (5, 340)
-		glColor3f(0.5,0.5,0.5);
-		drawRect(5,110,180,231);
+		//glColor3f(0.5,0.5,0.5);
+		//drawRect(5,110,180,231);
 		glColor3f(0.3,0.3,0.3);
-		drawRect(25,175,140,35);
+		//drawRect(25,175,140,35);
+		drawRect(19,175,153,35);
 		glColor4f(1,1,1,1);
 		drawString(30,190,"Previous");
 		drawString(115,190,"Next");
@@ -222,8 +231,10 @@ void drawStuff(void) {
 			POINT p;
 			GetCursorPos(&p);
 			ScreenToClient(ftlWindow,&p);
-			sprintf(output,"Mousepos %i %i",p.x, p.y);
-			drawString(200,190,output);
+			if(DEBUG) {
+				sprintf(output,"Mousepos %i %i",p.x, p.y);
+				drawString(200,190,output);
+			}
 			if(p.x>5&&p.x<185&&p.y>110&&p.y<340){
 				//draw cursor
 				drawTriangle(p.x,p.y,p.x+10,p.y+10,p.x,p.y+14);
@@ -285,8 +296,10 @@ DWORD WINAPI FTLM_Main (LPVOID lpParam)
 		ReadProcessMemory(FTLProcess,(VOID*)(playerShipsExe),&shipsDescExe,4,NULL);
 		// check if ships have been loaded
 		char out[50];
-		sprintf(out,"DescExe %x",shipsDescExe);
-		MessageBox(NULL, out, "test", MB_OK + MB_ICONINFORMATION);
+		if(DEBUG){
+			sprintf(out,"DescExe %x",shipsDescExe);
+			MessageBox(NULL, out, "test", MB_OK + MB_ICONINFORMATION);
+		}
 		Sleep(1000);
 		if(shipsDescExe && shipsDescExe->base == 0x007923C8) {
 			// descriptors are loaded, we can get the value and safely hook the functions now!

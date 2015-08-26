@@ -36,9 +36,10 @@ void MovAddrReg6Byte(DWORD instruction, char* const reg, void* pValue, HANDLE pr
 	hook[4] = ((DWORD)pValue>>16)&0xFF;
 	hook[5] = ((DWORD)pValue>>24)&0xFF;
 	char out[50];
-	sprintf(out,"instructions: %02X:%02X:%02X:%02X:%02X:%02X",hook[0],hook[1],hook[2],hook[3],hook[4],hook[5]);
-	MessageBox(NULL, out, "test", MB_OK + MB_ICONINFORMATION);
-	
+	if(DEBUG){
+		sprintf(out,"instructions: %02X:%02X:%02X:%02X:%02X:%02X",hook[0],hook[1],hook[2],hook[3],hook[4],hook[5]);
+		MessageBox(NULL, out, "test", MB_OK + MB_ICONINFORMATION);
+	}
 	SIZE_T bytesWritten = 0;
 	int success = WriteProcessMemory(process, (VOID*)(instruction), &hook, sizeof(hook), &bytesWritten);
 }
@@ -57,9 +58,11 @@ void RETHook6Byte(DWORD instruction, void* function, HANDLE process) {
 	char message[50];
 	SIZE_T bytesWritten = 0;
 	int success = WriteProcessMemory(process, (VOID*)(instruction), &hook, sizeof(hook), &bytesWritten);
-	char out[50];
-	sprintf(out,"Test %i",bytesWritten);
-	MessageBox(NULL, out, "test", MB_OK + MB_ICONINFORMATION);
+	if(DEBUG) {
+		char out[50];
+		sprintf(out,"Test %i",bytesWritten);
+		MessageBox(NULL, out, "test", MB_OK + MB_ICONINFORMATION);
+	}
 }
 
 //replaces instruction with  call &function (near, absolute)
@@ -76,8 +79,10 @@ void CALLHook6Byte(DWORD instruction, void* function, HANDLE process) {
 	SIZE_T bytesWritten = 0;
 	int success = WriteProcessMemory(process, (VOID*)(0x0025DBB8+0x00400000), &hook, sizeof(hook), &bytesWritten);
 	char out[50];
-	sprintf(out,"Test %i",bytesWritten);
-	MessageBox(NULL, out, "test", MB_OK + MB_ICONINFORMATION);
+	if(DEBUG){
+		sprintf(out,"Test %i",bytesWritten);
+		MessageBox(NULL, out, "test", MB_OK + MB_ICONINFORMATION);
+	}
 }
 /*
 //JMPAutoHook copies bytes of replaced instructions to location, and adds a JMP instruction pointing to next instruction after replaced ones
