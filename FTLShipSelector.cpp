@@ -22,58 +22,33 @@ char output[500];
 
 //select next ship
 void shipRotForward() {
-	ShipDescriptor* currShip = selectedShip;
-	//used for moving up the tree, the last ship we looped as
-	ShipDescriptor* lastShip = selectedShip;
-	while(selectedShip == currShip) {
-		if(selectedShip->greaterThan != NULL && lastShip!=selectedShip->greaterThan) {
-			selectedShip = selectedShip->greaterThan;
-		} else {
-			//have to move upwards
-			if(selectedShip != firstShip) {
-				//move to parent node, make sure we don't come down here again
-				if(selectedShip->parent->greaterThan!=selectedShip) {
-					lastShip = selectedShip;
+	char* lastShipID = selectedShip->shipID2;
+	if(selectedShip->greaterThan!=NULL) {
+		//go to the least child of the greater child
+		selectedShip = selectedShip->greaterThan;
+		while(selectedShip->lessThan!=NULL){
+			selectedShip = selectedShip->lessThan;
+		}
+	} else {
+		//gotta move up
+		while(true) {
+			//loop till we're at the top, or at a greater node
+			if(strcmp(selectedShip->shipID2,lastShipID)>0) {
+				//found a parent ship higher than us
+				break;
+			} else{
+				if(selectedShip != firstShip) {
 					selectedShip = selectedShip->parent;
 				} else {
-					//have to loop again
-					lastShip = selectedShip;
-					selectedShip = selectedShip->parent;
-					currShip=selectedShip;
+					//if we're at the top and NOT a greater node,
+					//we must go back to the beginning of the list
+					while(selectedShip->greaterThan!=NULL) {
+						selectedShip = selectedShip->lessThan;
+					}
+					break;
 				}
-			} else {
-				//we're the root, no parents, so reset to the least value node
-				while(selectedShip->lessThan != NULL) {
-					selectedShip = selectedShip->lessThan;
-				}
-				//we're back at the start, exit the loop
-				break;
 			}
 		}
-		//if we haven't come from the greater than node and it's not null, switch to it
-		/*if(selectedShip->greaterThan != NULL && lastShip!=selectedShip->greaterThan) {
-			selectedShip = selectedShip->greaterThan;
-			break;
-		} else {
-			if(selectedShip == selectedShip->lessThan) {
-				selectedShip = selectedShip->parent;
-				break;
-			}
-			//Either have to go to parent.greaterThan or parent.parent
-			if(selectedShip != firstShip) {
-				//move up to the parent, and make sure we don't come down the same connection
-				lastShip = selectedShip;
-				selectedShip = selectedShip->parent;
-				currShip = selectedShip->parent;
-			} else {
-				//We're the root, go back to the lowest child
-				while(selectedShip->lessThan != NULL) {
-					selectedShip = selectedShip->lessThan;
-				}
-				//we're back at the start, exit the loop
-				break;
-			}
-		}*/
 	}
 	selectedShipBase = &(selectedShip->base);
 }
