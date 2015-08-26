@@ -1,4 +1,4 @@
-#include "FTLShipSelector.h"
+﻿#include "FTLShipSelector.h"
 //black magic for getting a handle on our own DLL
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 
@@ -364,6 +364,9 @@ void drawRect (float x,float y,float w,float h) {
 }
 
 void drawChar(float x, float y, char text) {
+	//For some reason v seems to be rounded down, so
+	//we add an extra pixel to the v coord to fix this
+	float pxl = 1.0/128;
 	// width/height of a char in texture space
 	float charSize = 1.0f/16;
 	// t (y) texture coord of char
@@ -373,13 +376,13 @@ void drawChar(float x, float y, char text) {
 	
 	glEnable(GL_TEXTURE_2D);
 	glBegin(GL_QUADS);
-	 glTexCoord2f(charS, charT);
+	 glTexCoord2f(charS, charT+pxl);
 	 glVertex3f(x, y, 0.0); 
-	 glTexCoord2f(charS+charSize, charT);
+	 glTexCoord2f(charS+charSize, charT+pxl);
 	 glVertex3f(x+charW, y, 0.0); 
-	 glTexCoord2f(charS+charSize, charT+charSize);
+	 glTexCoord2f(charS+charSize, charT+charSize+pxl);
 	 glVertex3f(x+charW, y+charW, 0.0); 
-	 glTexCoord2f(charS, charT+charSize);
+	 glTexCoord2f(charS, charT+charSize+pxl);
 	 glVertex3f(x, y+charW, 0.0); 
 	glEnd();
 	glDisable(GL_TEXTURE_2D);
