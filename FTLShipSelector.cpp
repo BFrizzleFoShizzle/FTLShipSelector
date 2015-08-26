@@ -91,27 +91,31 @@ DWORD WINAPI mouseHookLoop (LPVOID lpParam) {
 }
 */
 void shipRotBackward() {
-	ShipDescriptor* currShip = selectedShip;
-	//used for moving up the tree, the last ship we looped as
-	ShipDescriptor* lastShip = selectedShip;
-	while(selectedShip == currShip) {
-		//if we haven't come from the lesser than node and it's not null, switch to it
-		if(selectedShip->lessThan != NULL && lastShip!=selectedShip->lessThan) {
-			selectedShip = selectedShip->lessThan;
-		} else {
-			//have to move upwards
-			if(selectedShip != firstShip) {
-				//move up to the parent, and make sure we don't come down the same connection
-				lastShip = selectedShip;
-				selectedShip = selectedShip->parent;
-				currShip = selectedShip->parent;
-			} else {
-				//We're the root, go back to the greatest child
-				while(selectedShip->greaterThan != NULL) {
-					selectedShip = selectedShip->greaterThan;
-				}
-				//we're back at the start, exit the loop
+	char* lastShipID = selectedShip->shipID2;
+	if(selectedShip->lessThan!=NULL) {
+		//go to the greatest child of the lesser child
+		selectedShip = selectedShip->lessThan;
+		while(selectedShip->greaterThan!=NULL){
+			selectedShip = selectedShip->greaterThan;
+		}
+	} else {
+		//gotta move up
+		while(true) {
+			//loop till we're at the top, or at a lesser node
+			if(strcmp(selectedShip->shipID2,lastShipID)<0) {
+				//found a parent ship higher than us
 				break;
+			} else{
+				if(selectedShip != firstShip) {
+					selectedShip = selectedShip->parent;
+				} else {
+					//if we're at the top and NOT a lesser node, we must
+					//go back to the beginning of the list
+					while(selectedShip->greaterThan!=NULL) {
+						selectedShip = selectedShip->greaterThan;
+					}
+					break;
+				}
 			}
 		}
 	}
@@ -133,10 +137,10 @@ __declspec(noinline) void dealWithClick(void) {
 	}
 	if(ftlWindow==NULL){
 		ftlWindow = GetActiveWindow();
-		sprintf(output,"FTLWindow %x",ftlWindow);
-		MessageBox(NULL, output, "test", MB_OK + MB_ICONINFORMATION);
-		GetWindowText(ftlWindow,output,50);
-		MessageBox(NULL, output, "test", MB_OK + MB_ICONINFORMATION);
+		//sprintf(output,"FTLWindow %x",ftlWindow);
+		//MessageBox(NULL, output, "test", MB_OK + MB_ICONINFORMATION);
+		//GetWindowText(ftlWindow,output,50);
+		//MessageBox(NULL, output, "test", MB_OK + MB_ICONINFORMATION);
 	}
 	//check if in hangar
 	if(*((bool*)0x0028EECC)) {
@@ -198,7 +202,7 @@ void drawStuff(void) {
 	drawString(200.0f,y,output);
 	y+=20.0f;
 	if(selectedShip!=NULL)
-		sprintf_s(output,"1 %x %s", selectedShip, selectedShip->shipClass);
+		sprintf_s(output,"1 %x %s", selectedShip, selectedShip->shipID2);
 	drawString(200.0f,y,output);
 	y+=20.0f;
 	if(firstShip!=NULL)
