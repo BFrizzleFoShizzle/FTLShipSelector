@@ -2,6 +2,20 @@ jmp to OPENGL32.glFinish
 0065DBB8
 = FTLGame.exe+0025DBB8
 
+Selected ship: 0028EFE4
+FTL+1D687A (instruction) = ship index for achievement
+FTL+1D3EA1 (instruction) = ship index for whether layout b is available
+FTL+1D3F15 (instruction) = ship index for whether layout c is available
+FTL+1D3FBC (instruction) = ship index???
+FTL+1D5053 (instruction) = getter function for ship index? dictates generated ship 
+
+FTL+1D6DDE (instruction) = set ship index after left arrow
+FTL+1D6CC4 (instruction) = set ship index after left arrow
+FTL+1D891E (instruction) = set ship index after list
+FTL+1D8BD2 (instruction) = set ship index after random
+FTL+1D5A8B
+
+FTL+22BF43 some sort of click event?
 
 Unit/char reverse
 x float = +C
@@ -14,19 +28,72 @@ x goal (pathfinder, 4byte int) = +50
 y goal (pathfinder, 4byte int) = +54
 Selection (1 byte bool) = +78 (0 = nothing, 1 = selected, 2 = hover)
 Name pointer = +1f8, +1fC, +378?
-Name pointer = 
-
-
 grid width: 35
+FTLGame.exe+39BE2C = player ship descriptor array
+FTLGame.exe+39BE2C+4 = DLC ship descriptor array
+FTLGame.exe+39BE2C+8 = non-DLC ship descriptor array
+
+In hangar: 0028EECC
+
+Ship descriptors are stored as binary search tree, mid/parent value at: *0079BE28
+
+Value of ship descriptor: 0x7923C8
+//Ship descriptor pointer array start: 0x28EF6C (stack) (value used in code is 0028E72C?) (Only player ships)
+SHIP DESCRIPTOR REVERSE (LINKED LIST)
+Length: 0x148
+EVERYTHING IS WRONG
++4 parent descriptor
++8 less than descriptor???
++C greater than descriptor
++14 = 0x7923C8
++34 ship class (string pointer)
++3C ship description (string pointer)
++5C ship ID (string)
++60 ship name
++64 ship class slave
++68 layout/image filename? (layout?)
++6C layout/image filename? (image?)
++70 layout/image filename? (?)
++74 layout/image filename? (?)
++78 layout/image filename? (?)
++98 room descriptor
++9c room descriptor
++134 next room descriptor
+
+Length of player ships set at +16BB9B
+Num. player ships hardcoded at +1DA408
+
+ENEMY SHIP CREATION:
+FTLGame.exe+94823 (set [ESP] with pointer to ship descriptor, 3 bytes)
+
+0028D65C
+
+ROOM DESCRIPTOR REVERSE
+
 
 Ship base value: 0x00791108 (value of the base address of a ship)
+Function called after ship descriptor pointer read:  +13AC44 (at +1D6B60)
+
+Ship constructor?: +6EDA
+Ship constructor?: +1D6B16 (CALLED only for player ship)
+Ship constructor?: + (+C027F) (CALLED only for enemy ship)
+Ship constructor?: +1D6B16 (+C027F) (CALLED only for enemy ship)
+Ship constructor?: +B850c (+B875E) (CALLED only for enemy ship)
+Ship constructor?: +93F96 (+9469D) (CALLED only for enemy ship)
+Ship constructor?: +13F50A (CALLED for either player or enemy ship)
+
+Player ship descriptor is selected at FTL+1D6B4E
+
+Ship HP is set at +1148A7, +10FF6D
 
 Your ship
 FTLGame.exe+39BA90
+Ship length: 1624
 Ship array
 FTLGame.exe+39BAA4  +3d8  +[18, 1c]
 (stack based derivation) (0028E400+10 = 0DB0A870 +0c -> DB63988+12c)
 Ship reverse
++4 = method
 +24 = oxygen power manager
 +A4 = shield power manager
 +A8 = ship weapon manager
@@ -40,6 +107,7 @@ Ship reverse
 (bunch of strings 1c, 1d4, 4b8-4d4)3
 +160 = ship image?
 +188 = cloak image?
++4B8 = ID
 +4BC = name
 +4C0 = display name
 
@@ -58,9 +126,6 @@ Weapon (descriptor?) array:
 FTLGame.exe+39BAAC +28 +8 +4c +n
 weapon (descriptor?) reverse
 +4c = weapon pointer
-
-
-
 
 WEAPON reverse
 +8 = time towards charge (seconds)
@@ -88,15 +153,4 @@ FTLGame.exe+39BA90 = 0079F780
 [0079F780+0C] = 0DC80DD8
 [0DC80DD8+(unit*4)] = 0DDF05B0 = unit
 [0DDF05B0+2c] = HP
-
-0
-[0028E400+10] = 0DCB9C98?
-[0DCB9C98?+308] =  0DC0A408
-//[0DCB9F98+08] = 0DC0A408
-
-[0DC0A408+0] = 0D9DCB58
-[0D9DCB58+4c] = 0D858A90
-0D858A90+1c4 = shield
-
-0DC570C0
 
