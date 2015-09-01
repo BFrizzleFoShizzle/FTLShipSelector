@@ -180,7 +180,6 @@ void hookClick(void){
 	__asm
 	{
 		//recover from function call:
-		
 		pop edx;
 		pop ecx;
 		pop eax;
@@ -333,10 +332,6 @@ DWORD WINAPI FTLM_Main (LPVOID lpParam)
 		Sleep(1);
 	}
 	*/
-	while(!playerShip){
-		ReadProcessMemory(FTLProcess,(VOID*)(0x400000+0x39BA90),&playerShip,4,NULL);
-		Sleep(100);
-	}
 	return 0;
 };
 

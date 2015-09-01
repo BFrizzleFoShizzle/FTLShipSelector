@@ -18,9 +18,6 @@
     <ClCompile Include="TextHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FTLShip.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="FTLShipSelector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -33,12 +30,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TextHelper.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FTLWeapon.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FTLShip.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="FTLShipSelector.h">
