@@ -1,4 +1,6 @@
 #include "TextHelper.h"
+#include <windows.h>
+#include <gl\GL.h>
 
 GLuint texFont;
 GLubyte texFontData[128][128][4];

@@ -1,7 +1,5 @@
 #pragma once
 #include <cstdio>
-#include <windows.h>
-#include <gl\GL.h>
 
 const float charW = 8.0f;
 
