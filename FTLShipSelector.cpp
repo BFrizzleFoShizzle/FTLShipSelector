@@ -1,10 +1,17 @@
 ﻿#include "FTLShipSelector.h"
+#include <cstdlib>
+#include <Windows.h>
+#include <gl\GL.h>
+#include "TextHelper.h"
+#include "FTLDraw.h"
+#include "DirtyHooker.h"
+#include "ShipDescriptor.h"
+
 //black magic for getting a handle on our own DLL
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 
 
 HANDLE FTLProcess;
-DWORD glFinishPointer;
 DWORD mouseClickPointer = 0x00400000+0x22BF3C;
 
 char ourDirectory[MAX_PATH] = {0};
@@ -239,29 +246,12 @@ void drawStuff(void) {
 	}
 };
 
-void hookOpenGLFinish(void) {
-	// EBP, EBX and EDI are pushed by VC++ automatically before this ASM block
-	// code here is safe, just don't use any variables, cause they'll prolly screw up the registers
-	// if you need variables, create a function and call it here, that will preserve the registers
-
-	drawStuff();
-
-	// reset registers and jump to opengl code
-	__asm
-	{
-		pop edi;
-		pop ebx;
-		pop ebp;
-		jmp glFinishPointer;
-	}
-};
-
 DWORD WINAPI FTLM_Main (LPVOID lpParam)
 {
 	FTLProcess = GetCurrentProcess();
 	// Hook openGL finish
-	glFinishPointer = (DWORD)GetProcAddress(GetModuleHandle("OPENGL32.dll"), "glFinish");
-	RETHook6Byte((0x0025DBB8+0x00400000),hookOpenGLFinish,FTLProcess);
+	hookGLFinish();
+	addDrawHook(drawStuff);
 	//hook mouse click
 	RETHook6Byte(mouseClickPointer,hookClick,FTLProcess);
 	//font loading stuff
@@ -329,29 +319,6 @@ DWORD WINAPI FTLM_Main (LPVOID lpParam)
 	*/
 	return 0;
 };
-
-
-
-void drawTriangle (float x1,float y1,float x2,float y2,float x3,float y3) {
-	glEnable(GL_COLOR_MATERIAL);
-	glBegin(GL_TRIANGLES);
-	 glVertex3f(x1, y1, 0.0);
-	 glVertex3f(x2, y2, 0.0);
-	 glVertex3f(x3, y3, 0.0);
-	glEnd();
-	glDisable(GL_COLOR_MATERIAL);
-}
-
-void drawRect (float x,float y,float w,float h) {
-	glEnable(GL_COLOR_MATERIAL);
-	glBegin(GL_QUADS);
-	 glVertex3f(x, y, 0.0); 
-	 glVertex3f(x+w, y, 0.0); 
-	 glVertex3f(x+w, y+h, 0.0); 
-	 glVertex3f(x, y+h, 0.0); 
-	glEnd();
-	glDisable(GL_COLOR_MATERIAL);
-}
 
 BOOL WINAPI DllMain (HINSTANCE hModule, DWORD dwAttached, LPVOID lpvReserved)
 {

@@ -78,12 +78,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="DirtyHooker.cpp" />
+    <ClCompile Include="FTLDraw.cpp" />
     <ClCompile Include="FTLShipSelector.cpp" />
     <ClCompile Include="ShipDescriptor.cpp" />
     <ClCompile Include="TextHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DirtyHooker.h" />
+    <ClInclude Include="FTLDraw.h" />
     <ClInclude Include="FTLShipSelector.h" />
     <ClInclude Include="ShipDescriptor.h" />
     <ClInclude Include="TextHelper.h" />
